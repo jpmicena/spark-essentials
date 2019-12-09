@@ -2,6 +2,7 @@ package part2dataframes
 
 import org.apache.spark.sql.{Column, SparkSession}
 import org.apache.spark.sql.functions._
+import part2dataframes.DataSources.spark
 
 object ColumnsAndExpressions extends App {
   val spark = SparkSession.builder()
@@ -87,4 +88,30 @@ object ColumnsAndExpressions extends App {
   allCountriesDF.show()
 
 
+  /*
+    Exercises
+      1. Read the movies DF and select 2 columns of your choice
+      2. Create another column summing up the total profit of the movie = US_Gross + Worldwide_Gross + US_DVD_Sales
+      3. Select all COMEDY movies (Major_Genre) with IMDB rating above 6
+
+      Use as many versions as possible
+   */
+
+  val moviesDF = spark.read
+    .format("json")
+    .option("inferSchema", "true")
+    .load("src/main/resources/data/movies.json")
+
+  moviesDF
+    .select("Title", "Release_Date")
+    .show()
+
+  moviesDF
+    .withColumn("Total_Profit", $"US_Gross" + $"Worldwide_Gross")
+    .show()
+
+  moviesDF
+    .where($"Major_Genre" === "Comedy")
+    .where($"IMDB_Rating" >= 6)
+    .show()
 }
